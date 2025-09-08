@@ -1,0 +1,32 @@
+graph TD
+    A[Start Test] --> B[Initialize Environment]
+    B --> C[Run Gatling Load Test]
+    C --> D[Collect Gatling Results]
+    D --> E[Run Lighthouse Checks]
+    E --> F[Aggregate Results]
+    F --> G[Generate Combined Dashboard]
+    G --> H[Open Reports]
+
+    subgraph "Gatling Flow"
+    C --> C1[Create Virtual Users]
+    C1 --> C2[Visit Random Pages]
+    C2 --> C3[Measure Response Times]
+    C3 --> C4[Track Errors]
+    C4 --> D
+    end
+
+    subgraph "Lighthouse Flow"
+    E --> E1[Check Each Page]
+    E1 --> E2[Performance Analysis]
+    E2 --> E3[Generate Scores]
+    E3 --> F
+    end
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#dfd,stroke:#333,stroke-width:2px
+    style D fill:#fdd,stroke:#333,stroke-width:2px
+    style E fill:#ddf,stroke:#333,stroke-width:2px
+    style F fill:#dfd,stroke:#333,stroke-width:2px
+    style G fill:#ffd,stroke:#333,stroke-width:2px
+    style H fill:#f96,stroke:#333,stroke-width:2px

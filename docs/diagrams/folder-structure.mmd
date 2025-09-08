@@ -1,0 +1,35 @@
+graph TD
+    A[web-loadtest] --> B[scripts]
+    A --> C[src]
+    A --> D[playwright]
+    A --> E[reports]
+    A --> F[docs]
+    
+    B --> B1[run_combined.sh]
+    B --> B2[run_individual.sh]
+    B --> B3[collect_json.sh]
+    
+    C --> C1[test/scala/pharmeasy]
+    C1 --> C2[CommonConfig.scala]
+    C1 --> C3[CombinedUrlsSimulation.scala]
+    C1 --> C4[IndividualUrlsSimulation.scala]
+    
+    D --> D1[lighthouse-run.mjs]
+    D --> D2[lighthouse-aggregate.mjs]
+    D --> D3[urls.json]
+    D --> D4[tests]
+    
+    E --> E1[gatling-json]
+    E --> E2[run-TIMESTAMP]
+    E2 --> E3[gatling]
+    E2 --> E4[lighthouse]
+    
+    F --> F1[DETAILED_GUIDE.md]
+    F --> F2[diagrams]
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#dfd,stroke:#333,stroke-width:2px
+    style D fill:#fdd,stroke:#333,stroke-width:2px
+    style E fill:#ddf,stroke:#333,stroke-width:2px
+    style F fill:#ffd,stroke:#333,stroke-width:2px

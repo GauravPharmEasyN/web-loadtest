@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="640" viewBox="0 0 720 640">
+  <style>
+    .box { fill:#f7fafc; stroke:#2d3748; stroke-width:1.5; rx:8; ry:8; }
+    .txt { font: 14px sans-serif; fill:#1a202c; }
+    .arrow { stroke:#4a5568; stroke-width:1.5; marker-end:url(#arrowhead); }
+  </style>
+  <defs>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4a5568" />
+    </marker>
+  </defs>
+  <rect class="box" x="40" y="30"  width="640" height="56" />
+  <text class="txt" x="60" y="64">Choose mode: Combined or Individual</text>
+  <rect class="box" x="40" y="120" width="640" height="56" />
+  <text class="txt" x="60" y="154">Set environment variables (users, duration)</text>
+  <rect class="box" x="40" y="210" width="640" height="56" />
+  <text class="txt" x="60" y="244">Run script: scripts/run_combined.sh or scripts/run_individual.sh</text>
+  <rect class="box" x="40" y="300" width="640" height="56" />
+  <text class="txt" x="60" y="334">sbt runs Gatling Simulation</text>
+  <rect class="box" x="40" y="390" width="640" height="56" />
+  <text class="txt" x="60" y="424">HTTP GET requests to target URLs</text>
+  <rect class="box" x="40" y="480" width="640" height="56" />
+  <text class="txt" x="60" y="514">Checks status 200 / 301 / 302</text>
+  <rect class="box" x="40" y="570" width="640" height="56" />
+  <text class="txt" x="60" y="604">Results in target/gatling/&lt;run&gt; and summary under reports/</text>
+  <line class="arrow" x1="360" y1="86"  x2="360" y2="120" />
+  <line class="arrow" x1="360" y1="176" x2="360" y2="210" />
+  <line class="arrow" x1="360" y1="266" x2="360" y2="300" />
+  <line class="arrow" x1="360" y1="356" x2="360" y2="390" />
+  <line class="arrow" x1="360" y1="446" x2="360" y2="480" />
+  <line class="arrow" x1="360" y1="536" x2="360" y2="570" />
+</svg>
+

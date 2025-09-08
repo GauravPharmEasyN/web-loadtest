@@ -1,0 +1,24 @@
+graph LR
+    A[Website Under Test] --> B[Gatling Load Generator]
+    B --> C[Response Times]
+    B --> D[Error Counts]
+    B --> E[Throughput]
+    
+    A --> F[Lighthouse Analyzer]
+    F --> G[Performance Score]
+    F --> H[Accessibility]
+    F --> I[Best Practices]
+    F --> J[SEO Score]
+    
+    C --> K[Combined Dashboard]
+    D --> K
+    E --> K
+    G --> K
+    H --> K
+    I --> K
+    J --> K
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#dfd,stroke:#333,stroke-width:2px
+    style K fill:#ffd,stroke:#333,stroke-width:2px

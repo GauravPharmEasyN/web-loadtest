@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="520" viewBox="0 0 860 520">
+  <style>
+    .box { fill:#f7fafc; stroke:#2d3748; stroke-width:1.5; rx:8; ry:8; }
+    .txt { font: 13px sans-serif; fill:#1a202c; }
+    .small { font: 12px sans-serif; fill:#2d3748; }
+    .arrow { stroke:#4a5568; stroke-width:1.5; marker-end:url(#ar); }
+  </style>
+  <defs>
+    <marker id="ar" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4a5568" />
+    </marker>
+  </defs>
+  <rect class="box" x="20" y="20" width="820" height="54" />
+  <text class="txt" x="40" y="52">Load CommonConfig.urls</text>
+  <rect class="box" x="20"  y="110" width="380" height="76" />
+  <text class="txt" x="40" y="140">Scenarios (one per page)</text>
+  <text class="small" x="40" y="160">home, online_medicine, diagnostics, blog, healthcare_category, cart, diag_cart</text>
+  <rect class="box" x="420" y="110" width="420" height="76" />
+  <text class="txt" x="440" y="140">Per-page injection</text>
+  <text class="small" x="440" y="160">PREFIX_USERS over PREFIX_DURATION_SECS (0 users disables a page)</text>
+  <rect class="box" x="20"  y="220" width="380" height="54" />
+  <text class="txt" x="40" y="252">HTTP GET to each page URL</text>
+  <rect class="box" x="420" y="220" width="420" height="54" />
+  <text class="txt" x="440" y="252">Validate status 200 / 301 / 302</text>
+  <rect class="box" x="20" y="310" width="820" height="54" />
+  <text class="txt" x="40" y="342">Results written under target/gatling; reports summarized under reports/</text>
+  <line class="arrow" x1="430" y1="74" x2="210" y2="110" />
+  <line class="arrow" x1="430" y1="74" x2="630" y2="110" />
+  <line class="arrow" x1="210" y1="186" x2="210" y2="220" />
+  <line class="arrow" x1="630" y1="186" x2="630" y2="220" />
+  <line class="arrow" x1="210" y1="274" x2="430" y2="274" />
+  <line class="arrow" x1="430" y1="274" x2="430" y2="310" />
+</svg>
+

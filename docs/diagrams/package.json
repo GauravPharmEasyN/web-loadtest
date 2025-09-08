@@ -1,0 +1,11 @@
+{
+    "name": "web-loadtest-diagrams",
+    "private": true,
+    "scripts": {
+        "render": "for file in *.mmd; do mmdc -p puppeteer-config.json -i \"$file\" -o \"${file%.mmd}.svg\" -t dark -b transparent; done",
+        "render:png": "for file in *.mmd; do mmdc -p puppeteer-config.json -i \"$file\" -o \"${file%.mmd}.png\" -t dark -b transparent; done"
+    },
+    "devDependencies": {
+        "@mermaid-js/mermaid-cli": "^10.6.1"
+    }
+}

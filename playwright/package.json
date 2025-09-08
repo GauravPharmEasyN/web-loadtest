@@ -1,0 +1,21 @@
+{
+  "name": "pharmeasy-web-loadtest-playwright",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "test": "playwright test",
+    "codegen": "playwright codegen",
+    "install-browsers": "playwright install --with-deps",
+    "lh:install": "npm i -D lighthouse @lhci/cli",
+    "lh:run": "node lighthouse-run.mjs",
+    "lh:aggregate": "node lighthouse-aggregate.mjs",
+    "lh:serve": "npx http-server ./lighthouse-reports -p 5600",
+    "render:diagrams": "node ../docs/render-diagrams.mjs"
+  },
+  "devDependencies": {
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.47.2",
+    "lighthouse": "^12.8.2",
+    "playwright": "^1.47.2"
+  }
+}

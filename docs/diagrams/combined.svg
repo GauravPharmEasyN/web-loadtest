@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="420" viewBox="0 0 800 420">
+  <style>
+    .box { fill:#f7fafc; stroke:#2d3748; stroke-width:1.5; rx:8; ry:8; }
+    .diamond { fill:#fff5f5; stroke:#c53030; stroke-width:1.5; }
+    .txt { font: 13px sans-serif; fill:#1a202c; }
+    .arrow { stroke:#4a5568; stroke-width:1.5; marker-end:url(#ah); }
+    .muted { fill:#4a5568; font:12px sans-serif; }
+  </style>
+  <defs>
+    <marker id="ah" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4a5568" />
+    </marker>
+  </defs>
+  <rect class="box" x="20"  y="20"  width="300" height="54" />
+  <text class="txt" x="40" y="52">Load CommonConfig.urls</text>
+  <rect class="box" x="360" y="20"  width="400" height="54" />
+  <text class="txt" x="380" y="52">Feeder picks random (name, url)</text>
+  <rect class="box" x="20"  y="110" width="300" height="54" />
+  <text class="txt" x="40" y="142">Scenario: Combined URLs</text>
+  <rect class="box" x="360" y="110" width="400" height="54" />
+  <text class="txt" x="380" y="142">Inject ramp: COMBINED_USERS over COMBINED_DURATION_SECS</text>
+  <rect class="box" x="20"  y="200" width="300" height="54" />
+  <text class="txt" x="40" y="232">HTTP GET ${url}</text>
+  <polygon class="diamond" points="560,227 610,200 660,227 610,254" />
+  <text class="txt" x="575" y="231">200/301/302?</text>
+  <rect class="box" x="360" y="300" width="180" height="54" />
+  <text class="txt" x="380" y="332">Next iteration</text>
+  <rect class="box" x="600" y="300" width="160" height="54" />
+  <text class="txt" x="618" y="332">Mark failure</text>
+  <rect class="box" x="20" y="300" width="300" height="54" />
+  <text class="txt" x="40" y="332">Write results to target/gatling</text>
+  <line class="arrow" x1="320" y1="47" x2="360" y2="47" />
+  <line class="arrow" x1="170" y1="110" x2="170" y2="74" />
+  <line class="arrow" x1="560" y1="137" x2="560" y2="110" />
+  <line class="arrow" x1="170" y1="200" x2="170" y2="164" />
+  <line class="arrow" x1="320" y1="227" x2="560" y2="227" />
+  <line class="arrow" x1="610" y1="254" x2="450" y2="300" />
+  <line class="arrow" x1="610" y1="254" x2="680" y2="300" />
+  <line class="arrow" x1="450" y1="354" x2="170" y2="354" />
+  <text class="muted" x="470" y="292">yes</text>
+  <text class="muted" x="660" y="292">no</text>
+</svg>
+
