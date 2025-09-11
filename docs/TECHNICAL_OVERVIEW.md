@@ -200,7 +200,7 @@ cd playwright && npm run lh:aggregate
 Run combined Gatling load, collect Gatling stats, generate Lighthouse reports and the summary dashboard, and open both reports in one command:
 
 ```bash
-COMBINED_USERS=2500 COMBINED_DURATION_SECS=120 ./scripts/run_combined.sh && ./scripts/collect_json.sh && (cd playwright && npm i --silent && npm run lh:run && npm run lh:aggregate) && open "$(ls -1dt reports/run-*/ | head -1)/index.html" "playwright/lighthouse-reports/index.html"
+COMBINED_USERS=6500 COMBINED_DURATION_SECS=300 ./scripts/run_combined.sh && ./scripts/collect_json.sh && (cd playwright && npm i --silent && npm run lh:run && npm run lh:aggregate) && open "$(ls -1dt reports/run-*/ | head -1)/index.html" "playwright/lighthouse-reports/index.html"
 ```
 
 - **Runs Gatling combined scenario**: generates `reports/run-<timestamp>/index.html`.
