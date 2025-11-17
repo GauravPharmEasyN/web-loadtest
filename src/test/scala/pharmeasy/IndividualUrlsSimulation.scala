@@ -35,6 +35,7 @@ class IndividualUrlsSimulation extends Simulation {
   private val category   = buildScenario("healthcare_category", CommonConfig.urls("healthcare_category"), "HCAT")
   private val cart       = buildScenario("cart", CommonConfig.urls("cart"), "CART")
   private val diagCart   = buildScenario("diag_cart", CommonConfig.urls("diag_cart"), "DCART")
+  private val pdp        = buildScenario("pdp", CommonConfig.urls("pdp"), "PDP")
 
   setUp(
     home,
@@ -43,6 +44,7 @@ class IndividualUrlsSimulation extends Simulation {
     blog,
     category,
     cart,
-    diagCart
+    diagCart,
+    pdp
   ).protocols(httpProtocol)
 }

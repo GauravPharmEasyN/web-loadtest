@@ -10,7 +10,8 @@ object CommonConfig {
     "blog" -> "https://pharmeasy.in/blog/",
     "healthcare_category" -> "https://pharmeasy.in/health-care/9066?src=homecard",
     "cart" -> "https://pharmeasy.in/cart?src=header",
-    "diag_cart" -> "https://pharmeasy.in/diag-pwa/cart"
+    "diag_cart" -> "https://pharmeasy.in/diag-pwa/cart",
+    "pdp" -> "https://pharmeasy.in/online-medicine-order/telma-40mg-strip-of-30-tablets-12024#otherProducts"
   )
 
   def rampUsersFromEnv(key: String, default: Int): Int =
@@ -18,4 +19,5 @@ object CommonConfig {
 
   def durationFromEnvSeconds(key: String, defaultSeconds: Int): Int =
     Option(System.getenv(key)).flatMap(s => util.Try(s.toInt).toOption).getOrElse(defaultSeconds)
+
 }

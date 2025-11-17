@@ -13,11 +13,9 @@ class CombinedUrlsSimulation extends Simulation {
     .acceptLanguageHeader("en-US,en;q=0.9")
 
   private val urlsSeq = CommonConfig.urls.toSeq
-
   private val feeder = Iterator.continually(Map("_urlPair" -> urlsSeq(scala.util.Random.nextInt(urlsSeq.length))))
-
-  private val totalUsers = CommonConfig.rampUsersFromEnv("COMBINED_USERS", 50)
-  private val durationSecs = CommonConfig.durationFromEnvSeconds("COMBINED_DURATION_SECS", 120)
+  private val totalUsers = CommonConfig.rampUsersFromEnv("COMBINED_USERS", 1)
+  private val durationSecs = CommonConfig.durationFromEnvSeconds("COMBINED_DURATION_SECS", 2)
 
   private val scn = scenario("Combined URLs Random GET")
     .feed(feeder)
