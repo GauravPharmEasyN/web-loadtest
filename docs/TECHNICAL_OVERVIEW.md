@@ -137,6 +137,35 @@ Outputs:
 - Raw Gatling: `target/gatling/combinedurlssimulation-<timestamp>/`
 - Consolidated: `reports/run-<timestamp>/index.html`
 
+#### Heavy load (e.g. 2500 users over 300 seconds)
+`CombinedUrlsSimulation` uses `rampUsers(COMBINED_USERS).during(COMBINED_DURATION_SECS)` and **one GET per virtual user**. Injection is spread across the whole window, but if responses are slow, **many users can be in flight at once**, which stresses **heap**, **CPU**, and **open sockets** on the machine running Gatling—not only the target site.
+
+**Run it reliably:**
+
+1. **JVM heap for the forked Gatling process** (recommended before large runs):
+   ```bash
+   export GATLING_JAVA_OPTS="-Xmx8g -Xms2g -XX:+UseG1GC"
+   ```
+   Adjust `-Xmx` to ~50–70% of RAM on the load generator; avoid swapping.
+
+2. **Raise file descriptor limit** (common failure under concurrency on macOS/Linux):
+   ```bash
+   ulimit -n 65535
+   ```
+
+3. **Hardware / placement**: Prefer a **dedicated Linux host or cloud VM** (8+ vCPU, plenty of RAM) in the **same region** as the target. Laptops often become the bottleneck (Wi‑Fi, thermal throttling, low default `ulimit`).
+
+4. **Target and policy**: Very high load against **production** can trigger **rate limits, WAF blocks, or IP bans**. Coordinate with the team; use **staging** or **canary** when possible, or **split** load (e.g. two VMs × 1250 users with staggered ramps) only if policy allows.
+
+5. **Beyond one JVM**: To go much higher than a single process comfortably supports, use **multiple load generators** (separate machines each running a slice of users, or Gatling Enterprise / distributed setups). One repo, one `sbt` process is still **one client origin** with finite throughput.
+
+6. **Optional – same command you already use:**
+   ```bash
+   export GATLING_JAVA_OPTS="-Xmx8g -Xms2g -XX:+UseG1GC"
+   ulimit -n 65535
+   COMBINED_USERS=2500 COMBINED_DURATION_SECS=300 ./scripts/run_combined.sh
+   ```
+
 
 ### Run – Individual URLs (per-page; supports single-page)
 Runs one scenario per page. Control each page’s load independently via env vars.
