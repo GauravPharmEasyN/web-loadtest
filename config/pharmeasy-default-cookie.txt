@@ -1,0 +1,5 @@
+# Default HTTP Cookie header body (no leading "Cookie: ") for Gatling, Lighthouse, and Playwright
+# when PHARMEASY_COOKIE / X_ACCESS_TOKEN / ACCESS_TOKEN are unset. First non-empty, non-# line wins.
+# Disable entirely: export DISABLE_PHARMEASY_COOKIE=1
+# Replace with real values locally or use env vars (preferred for shared repos).
+X-Access-Token=REPLACE_WITH_TOKEN; XdI=REPLACE_WITH_XDI

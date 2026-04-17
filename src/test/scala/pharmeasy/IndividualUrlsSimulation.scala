@@ -6,17 +6,22 @@ import scala.concurrent.duration._
 
 class IndividualUrlsSimulation extends Simulation {
 
-  private val httpProtocol = http
-    .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36")
-    .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8")
-    .acceptEncodingHeader("gzip, deflate, br")
-    .acceptLanguageHeader("en-US,en;q=0.9")
+  private val httpProtocol = {
+    val base = HeavyLoadHttpProtocol
+      .tune(http)
+      .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36")
+      .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8")
+      .acceptEncodingHeader("gzip, deflate, br")
+      .acceptLanguageHeader("en-US,en;q=0.9")
+    CommonConfig.cookieHeader.fold(base)(c => base.header("Cookie", c))
+  }
 
   private def buildScenario(name: String, url: String, envPrefix: String) = {
     val rampUsersCount = CommonConfig.rampUsersFromEnv(s"${envPrefix}_USERS", 10)
     val durationSecs   = CommonConfig.durationFromEnvSeconds(s"${envPrefix}_DURATION_SECS", 60)
 
     val scn = scenario(s"GET ${name}")
+      .exec(RequestDebug.logOutgoingIndividual(name, url))
       .exec(
         http(s"GET ${name}")
           .get(url)

@@ -63,18 +63,70 @@ Use env vars to control ramp users and duration:
 - Combined mode: `COMBINED_USERS`, `COMBINED_DURATION_SECS`
 - Individual mode: `<PREFIX>_USERS`, `<PREFIX>_DURATION_SECS` per page, where prefixes are `HOME`, `MEDICINE`, `DIAG`, `BLOG`, `HCAT`, `CART`, `DCART`.
 
+Optional **cookies** (standard HTTP `Cookie` header on Gatling, Lighthouse, and Playwright).
+
+**Default (no env):** if none of the env vars below are set, all tools read the **first non-comment line** of **`config/pharmeasy-default-cookie.txt`** (under the repo root). Edit that file to change the default for every URL in load tests / Lighthouse / Playwright.
+
+**Opt out:** `export DISABLE_PHARMEASY_COOKIE=1` (or `true`) sends **no** `Cookie` header.
+
+**Overrides** (highest priority first when not disabled):
+
+1. **`PHARMEASY_COOKIE`** — full cookie string (matches curl `--header 'Cookie: …'` body only), e.g.  
+   `X-Access-Token=…; XdI=…`
+2. Or **`X_ACCESS_TOKEN`** and **`XDI`** — combined as `X-Access-Token=<X_ACCESS_TOKEN>; XdI=<XDI>` (if `XDI` is omitted, only `X-Access-Token=…` is sent).
+3. Legacy: **`ACCESS_TOKEN`** only → `accessToken=<value>`.
+
+Treat tokens as secrets in shared repos; prefer CI-injected `PHARMEASY_COOKIE` over committing live values in `config/pharmeasy-default-cookie.txt`.
+
+Examples (curl-style):
+```bash
+export PHARMEASY_COOKIE='X-Access-Token=7qZ0ifsxDwDJBAFqp1_iNMA2oq_0RP-H; XdI=ffy13v6U5pQqAM4qRj5xn'
+COMBINED_USERS=100 COMBINED_DURATION_SECS=120 ./scripts/run_combined.sh
+```
+```bash
+export X_ACCESS_TOKEN='7qZ0ifsxDwDJBAFqp1_iNMA2oq_0RP-H'
+export XDI='ffy13v6U5pQqAM4qRj5xn'
+COMBINED_USERS=100 COMBINED_DURATION_SECS=120 ./scripts/run_combined.sh
+```
+For a **noisier Gatling dry run** (more HTTP logs), append a logback override (optionally combine with your usual `-Xmx` flags):
+```bash
+export GATLING_JAVA_OPTS="-Dlogback.configurationFile=classpath:logback-dryrun.xml"
+```
+
+**Per-request line logging** (each virtual user’s GET, URL, optional `Cookie` string): enable with **any** of the following, disable by unsetting or setting to `false`:
+
+- `export GATLING_DEBUG=true` (recommended), or `export DEBUG=true`
+- JVM: add **`-Dgatling.request.debug=true`** to `GATLING_JAVA_OPTS` (or pass via `sbt`)
+
+Logger name: `pharmeasy.request`. Example:
+
+```bash
+export GATLING_DEBUG=true
+COMBINED_USERS=5 COMBINED_DURATION_SECS=10 ./scripts/run_combined.sh
+```
+
+At very high user counts, turn this **off** to avoid log I/O slowing the generator.
+
 
 ### Individual URLs flow
 Creates one scenario per configured page. You can “single-page” run by setting every other page’s users to 0.
 
-```1:18:src/test/scala/pharmeasy/IndividualUrlsSimulation.scala
-class IndividualUrlsSimulation extends Simulation {
+```18:31:src/test/scala/pharmeasy/IndividualUrlsSimulation.scala
   private def buildScenario(name: String, url: String, envPrefix: String) = {
     val rampUsersCount = CommonConfig.rampUsersFromEnv(s"${envPrefix}_USERS", 10)
     val durationSecs   = CommonConfig.durationFromEnvSeconds(s"${envPrefix}_DURATION_SECS", 60)
+
     val scn = scenario(s"GET ${name}")
-      .exec(http(s"GET ${name}").get(url).check(status.in(200, 301, 302)))
-    scn.inject(rampUsers(rampUsersCount).during(durationSecs.seconds))
+      .exec(RequestDebug.logOutgoingIndividual(name, url))
+      .exec(
+        http(s"GET ${name}")
+          .get(url)
+          .check(status.in(200, 301, 302))
+      )
+
+    scn.inject(
+      rampUsers(rampUsersCount).during(durationSecs.seconds)
+    )
   }
 ```
 
@@ -267,6 +319,26 @@ COMBINED_USERS=100 COMBINED_DURATION_SECS=120 ./scripts/run_combined.sh && \
 (cd playwright && npm i --silent && npm run lh:run && npm run lh:aggregate) && \
 open "$(ls -1dt target/gatling/combinedurlssimulation-*/ | head -1)/index.html" \
   "playwright/lighthouse-reports/index.html"
+```
+
+
+## HTTP timeouts (TCP connect & TLS handshake)
+
+Project defaults are in **`conf/gatling.conf`** (`connectTimeout`, `handshakeTimeout`, `http.requestTimeout`, `http.dns.queryTimeout`).
+
+**If you see many `ConnectTimeoutException: connection timed out after 1000` (or other low values):** do **not** set `gatling.socket.connectTimeout` to ~1s under high user counts against a multi‑IP CDN (`pharmeasy.in` resolves to many CloudFront addresses). Thousands of simultaneous new TCP connects will exceed 1s regularly even when the site is healthy. Prefer **10–20s** connect + handshake for heavy ramps, or reduce users / lengthen ramp.
+
+**If you see `SslHandshakeTimeoutException`:** TLS is not finishing in time (overload, cold connections, or too many handshakes in parallel). Mitigations: raise **`gatling.ssl.handshakeTimeout`**, consider enabling **HTTP/2** on the Gatling HTTP protocol (`.enableHttp2()` per Gatling docs) to multiplex on fewer connections, or reduce concurrent new connections.
+
+**500 responses:** origin or edge errors under load—tune traffic with the owning team, use staging, or lower `COMBINED_USERS` / stretch `COMBINED_DURATION_SECS` (gentler ramp).
+
+**`Request timeout … after 60000 ms`:** raise **`gatling.http.requestTimeout`** in `conf/gatling.conf` if pages legitimately exceed 60s, or fix slow pages / cold caches.
+
+Override for one run without editing the file:
+
+```bash
+GATLING_JAVA_OPTS="-Dgatling.socket.connectTimeout=20000 -Dgatling.ssl.handshakeTimeout=20000 -Dgatling.http.requestTimeout=120000" \
+  COMBINED_USERS=100 COMBINED_DURATION_SECS=120 ./scripts/run_combined.sh
 ```
 
 

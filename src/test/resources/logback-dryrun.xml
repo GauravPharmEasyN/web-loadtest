@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Use: GATLING_JAVA_OPTS="-Dlogback.configurationFile=classpath:logback-dryrun.xml" for a noisier dry run -->
 <configuration>
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{24} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <!-- Gatling HTTP stack logs per-chunk DEBUG; keep it quiet by default -->
-    <logger name="io.gatling.http" level="WARN"/>
     <logger name="io.netty" level="WARN"/>
     <logger name="akka" level="WARN"/>
     <logger name="com.typesafe" level="WARN"/>
 
-    <!-- Simulation lifecycle, injector, chart generation -->
+    <!-- More HTTP detail than logback-test.xml; still avoids Netty chunk spam -->
+    <logger name="io.gatling.http" level="INFO"/>
     <logger name="io.gatling" level="INFO"/>
-
-    <!-- Emitted only when GATLING_DEBUG / DEBUG / -Dgatling.request.debug enables request logging -->
     <logger name="pharmeasy.request" level="INFO"/>
 
     <root level="WARN">

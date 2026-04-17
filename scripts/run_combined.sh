@@ -7,6 +7,10 @@ set -euo pipefail
 #   export GATLING_JAVA_OPTS="-Xmx8g -Xms512m -XX:+UseG1GC"   # keep -Xms < -Xmx if you set both
 #   ulimit -n 65535
 # Prefer a Linux VM in the same region as the target; laptops often hit CPU, RAM, or ephemeral ports first.
+#
+# Log each outgoing GET (URL + optional Cookie): export GATLING_DEBUG=true  OR  DEBUG=true
+#   OR append to GATLING_JAVA_OPTS: -Dgatling.request.debug=true
+# (High volume: disable for very large runs to reduce I/O.)
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 ROOT_DIR=$(cd "${SCRIPT_DIR}/.." && pwd)
