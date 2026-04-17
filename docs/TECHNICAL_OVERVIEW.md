@@ -190,35 +190,60 @@ npm run lh:serve        # optional static server on http://localhost:5600
 ```
 Targets are read from `playwright/urls.json`.
 
+#### Chrome binary (Lighthouse)
+`lighthouse-run.mjs` launches Chrome via `chrome-launcher`. The binary is resolved in this order:
+
+1. **`CHROME_PATH`** — if set and the file exists, that executable is used (e.g. Google Chrome or Chromium on disk).
+2. **Playwright’s Chromium** — `chromium.executablePath()` is used only when it returns a path that exists (wraps failures so a bad or missing install does not crash the launcher).
+3. **Auto-detect** — if neither applies, `chrome-launcher` picks a system Chrome/Chromium install.
+
+Install Playwright browsers when you want the bundled Chromium: `cd playwright && npx playwright install chromium`.
+
+#### Headless vs headed
+- **Lighthouse** runs **headless** by default using `--headless=new`. To debug with a visible window: `HEADED=1` or `LIGHTHOUSE_HEADED=1`. To use the older headless flag: `LIGHTHOUSE_HEADLESS_MODE=old` (uses `--headless` instead of `--headless=new`).
+- **Playwright tests** default to **headless**. Use `HEADED=1` for a visible browser, or `PWDEBUG=1` for the Playwright inspector (headed).
+
 To include Gatling page load metrics in the dashboard, first collect the latest Gatling stats:
 ```bash
 ./scripts/collect_json.sh   # copies js/stats.json to reports/gatling-json/stats.json
 cd playwright && npm run lh:aggregate
 ```
 
-### One-shot: Gatling + Lighthouse together (macOS)
-Run combined Gatling load, collect Gatling stats, generate Lighthouse reports and the summary dashboard, and open both reports in one command:
+### One-shot: Gatling + collect JSON + Lighthouse + aggregate (macOS)
+Optional cleanup of previous Gatling/Lighthouse outputs, then run the full pipeline and open the HTML reports:
 
 ```bash
-COMBINED_USERS=6500 COMBINED_DURATION_SECS=300 ./scripts/run_combined.sh && ./scripts/collect_json.sh && (cd playwright && npm i --silent && npm run lh:run && npm run lh:aggregate) && open "$(ls -1dt reports/run-*/ | head -1)/index.html" "playwright/lighthouse-reports/index.html"
+# Optional: reset prior outputs
+rm -rf target/gatling/* reports/run-* reports/gatling-json/* playwright/lighthouse-reports/*
+
+COMBINED_USERS=2500 COMBINED_DURATION_SECS=300 ./scripts/run_combined.sh && \
+./scripts/collect_json.sh && \
+(cd playwright && npm i --silent && npm run lh:run && npm run lh:aggregate) && \
+open "$(ls -1dt target/gatling/combinedurlssimulation-*/ | head -1)/index.html" \
+  "playwright/lighthouse-reports/index.html"
 ```
 
-- **Runs Gatling combined scenario**: generates `reports/run-<timestamp>/index.html`.
-- **Collects latest Gatling JSON**: saves `reports/gatling-json/stats.json`.
-- **Runs Lighthouse** for pages in `playwright/urls.json` and **aggregates** `playwright/lighthouse-reports/index.html` (includes Gatling mean response times if available).
-- **Opens** the latest Gatling report and the Lighthouse dashboard.
+- **Gatling (combined scenario)** writes the HTML report under `target/gatling/combinedurlssimulation-<timestamp>/index.html`.
+- **`collect_json.sh`** copies JSON (including `js/stats.json` as `reports/gatling-json/stats.json` when present).
+- **`lh:run`** then **`lh:aggregate`** produce per-URL Lighthouse artifacts and `playwright/lighthouse-reports/index.html` (aggregate can fold in Gatling means when stats were collected).
+- **`open`** launches the latest Gatling report and the Lighthouse dashboard (macOS). On Linux, open those two paths in a browser manually.
 
-
-Longer run example (300s duration):
+Smaller example:
 
 ```bash
-COMBINED_USERS=100 COMBINED_DURATION_SECS=300 ./scripts/run_combined.sh && ./scripts/collect_json.sh && (cd playwright && npm i --silent && npm run lh:run && npm run lh:aggregate) && open "$(ls -1dt reports/run-*/ | head -1)/index.html" "playwright/lighthouse-reports/index.html"
+COMBINED_USERS=100 COMBINED_DURATION_SECS=120 ./scripts/run_combined.sh && \
+./scripts/collect_json.sh && \
+(cd playwright && npm i --silent && npm run lh:run && npm run lh:aggregate) && \
+open "$(ls -1dt target/gatling/combinedurlssimulation-*/ | head -1)/index.html" \
+  "playwright/lighthouse-reports/index.html"
 ```
 
 
 ## Notes and troubleshooting
 - If `sbt` isn’t found, install sbt and ensure it’s on PATH.
 - If Java is missing or version < 11, install a compatible JDK.
+- **Lighthouse / `chrome-launcher`**: if you see errors launching Chrome (for example a `TypeError` around `pid` / `toString`), set **`CHROME_PATH`** to a real Chrome or Chromium binary, or run `npx playwright install chromium` under `playwright/` so the Playwright fallback path exists.
+- Lighthouse may log trace warnings such as **`NO_LCP`** on some URLs; reports are still written unless the run aborts.
 - Proxy-restricted environments may require JVM/system proxy settings: `JAVA_TOOL_OPTIONS` or `-Dhttp.proxyHost` / `-Dhttps.proxyHost`.
 - Public, unauthenticated pages only are targeted by default.
 

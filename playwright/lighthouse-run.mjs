@@ -16,12 +16,34 @@ if (!fs.existsSync(reportsDir)) fs.mkdirSync(reportsDir);
 
 const urls = JSON.parse(fs.readFileSync(urlsPath, 'utf-8'));
 
+/** Prefer CHROME_PATH, then Playwright's Chromium if present; else let chrome-launcher find Chrome/Chromium. */
+function resolveChromePath() {
+    const fromEnv = process.env.CHROME_PATH?.trim();
+    if (fromEnv && fs.existsSync(fromEnv)) return fromEnv;
+
+    try {
+        if (typeof chromium?.executablePath === 'function') {
+            const p = chromium.executablePath();
+            if (p && fs.existsSync(p)) return p;
+        }
+    } catch {
+        // Playwright browsers missing or executablePath not usable in this environment
+    }
+    return undefined;
+}
+
 const run = async () => {
-    const chromePath = typeof chromium?.executablePath === 'function' ? chromium.executablePath() : undefined;
+    const chromePath = resolveChromePath();
+    const headed = process.env.HEADED === '1' || process.env.LIGHTHOUSE_HEADED === '1';
+    /** Default headless Chromium for Lighthouse; set HEADED=1 to open a real window for debugging. */
+    const headlessFlag =
+        process.env.LIGHTHOUSE_HEADLESS_MODE === 'old'
+            ? '--headless'
+            : '--headless=new';
     const chrome = await chromeLauncher.launch({
-        chromePath,
+        ...(chromePath ? { chromePath } : {}),
         chromeFlags: [
-            '--headless',                 // avoid '=new' which can be unstable on some Chrome builds
+            ...(headed ? [] : [headlessFlag]),
             '--disable-gpu',
             '--no-sandbox',
             '--disable-dev-shm-usage',

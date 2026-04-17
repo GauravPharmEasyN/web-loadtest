@@ -6,6 +6,8 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   use: {
     baseURL: 'https://pharmeasy.in',
+    /** No UI for perf/load-style runs; set HEADED=1 to debug locally. */
+    headless: process.env.HEADED !== '1' && process.env.PWDEBUG !== '1',
     trace: 'off',
     actionTimeout: 20_000,
     navigationTimeout: 30_000,
