@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{24} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Gatling HTTP stack logs per-chunk DEBUG; keep it quiet by default -->
+    <logger name="io.gatling.http" level="WARN"/>
+    <logger name="io.netty" level="WARN"/>
+    <logger name="akka" level="WARN"/>
+    <logger name="com.typesafe" level="WARN"/>
+
+    <!-- Simulation lifecycle, injector, chart generation -->
+    <logger name="io.gatling" level="INFO"/>
+
+    <root level="WARN">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

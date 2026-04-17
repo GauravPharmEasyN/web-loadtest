@@ -144,9 +144,11 @@ Outputs:
 
 1. **JVM heap for the forked Gatling process** (recommended before large runs):
    ```bash
-   export GATLING_JAVA_OPTS="-Xmx8g -Xms2g -XX:+UseG1GC"
+   export GATLING_JAVA_OPTS="-Xmx8g -Xms512m -XX:+UseG1GC"
    ```
-   Adjust `-Xmx` to ~50–70% of RAM on the load generator; avoid swapping.
+   The Gatling sbt plugin’s fork ships with **`-Xmx1G`**; this project appends **`GATLING_JAVA_OPTS` to `Gatling / javaOptions`** so your **`-Xmx`** overrides that limit (HotSpot uses the last `-Xmx`). If you set **`-Xms`**, keep it **strictly below your effective `-Xmx`** or omit `-Xms`, otherwise the VM fails with *“Initial heap size set to a larger value than the maximum heap size”*.
+
+   Adjust `-Xmx` to a safe fraction of RAM on the load generator; avoid swapping.
 
 2. **Raise file descriptor limit** (common failure under concurrency on macOS/Linux):
    ```bash
@@ -161,7 +163,7 @@ Outputs:
 
 6. **Optional – same command you already use:**
    ```bash
-   export GATLING_JAVA_OPTS="-Xmx8g -Xms2g -XX:+UseG1GC"
+   export GATLING_JAVA_OPTS="-Xmx8g -Xms512m -XX:+UseG1GC"
    ulimit -n 65535
    COMBINED_USERS=2500 COMBINED_DURATION_SECS=300 ./scripts/run_combined.sh
    ```
@@ -271,6 +273,7 @@ open "$(ls -1dt target/gatling/combinedurlssimulation-*/ | head -1)/index.html" 
 ## Notes and troubleshooting
 - If `sbt` isn’t found, install sbt and ensure it’s on PATH.
 - If Java is missing or version < 11, install a compatible JDK.
+- **`Initial heap size set to a larger value than the maximum heap size`**: the Gatling fork defaults to **`-Xmx1G`**. If **`GATLING_JAVA_OPTS` only set `-Xms2g`** (or applied on the wrong sbt scope), **initial heap could exceed max heap**. Fix: use **`GATLING_JAVA_OPTS` with a larger `-Xmx` first** (this repo appends to **`Gatling / javaOptions`** so it overrides the 1G cap), and either **omit `-Xms`** or set **`-Xms` lower than `-Xmx`**.
 - **Lighthouse / `chrome-launcher`**: if you see errors launching Chrome (for example a `TypeError` around `pid` / `toString`), set **`CHROME_PATH`** to a real Chrome or Chromium binary, or run `npx playwright install chromium` under `playwright/` so the Playwright fallback path exists.
 - Lighthouse may log trace warnings such as **`NO_LCP`** on some URLs; reports are still written unless the run aborts.
 - Proxy-restricted environments may require JVM/system proxy settings: `JAVA_TOOL_OPTIONS` or `-Dhttp.proxyHost` / `-Dhttps.proxyHost`.
