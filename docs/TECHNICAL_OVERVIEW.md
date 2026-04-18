@@ -61,7 +61,7 @@ playwright/                          # Optional UI smoke + Lighthouse
 
 Use env vars to control ramp users and duration:
 - Combined mode: `COMBINED_USERS`, `COMBINED_DURATION_SECS`
-- Individual mode: `<PREFIX>_USERS`, `<PREFIX>_DURATION_SECS` per page, where prefixes are `HOME`, `MEDICINE`, `DIAG`, `BLOG`, `HCAT`, `CART`, `DCART`.
+- Individual mode: `<PREFIX>_USERS`, `<PREFIX>_DURATION_SECS` per page, where prefixes are `HOME`, `MEDICINE`, `DIAG`, `BLOG`, `HCAT`, `CART`, `DCART`, `PDP`.
 
 Optional **cookies** (standard HTTP `Cookie` header on Gatling, Lighthouse, and Playwright).
 
@@ -243,6 +243,70 @@ MEDICINE_USERS=0 DIAG_USERS=0 BLOG_USERS=0 HCAT_USERS=0 CART_USERS=0 DCART_USERS
 ./scripts/run_individual.sh
 ```
 Note: `rampUsers(0)` skips injection for that page.
+
+#### Replicate peak traffic (individual scenarios, all pages)
+
+`IndividualUrlsSimulation` runs **one scenario per URL in parallel**. Each scenario uses `rampUsers(N).during(T)` — **N users are started evenly over T seconds**, and **each user performs one GET** then exits. Combined injection and in-flight requests add up across scenarios; use a **dedicated Linux VM** (enough RAM for heap + native buffers), **raise open-file limits**, and set **`PHARMEASY_COOKIE`** (or `X_ACCESS_TOKEN` + `XDI`) for realistic responses. Turn **`GATLING_DEBUG` off** at these scales. See **Heavy load** under Combined URLs for JVM and `ulimit` rationale.
+
+Use **`GATLING_ULIMIT_NO`** instead of a separate `ulimit` line if you prefer (handled in `scripts/_gatling_preamble.sh`).
+
+**Peak-style mix — 600s ramp, blog off** (higher weight on medicine / category / PDP; moderate home / diagnostics / carts):
+
+```bash
+cd /path/to/web-loadtest   # repository root
+
+export GATLING_JAVA_OPTS="-Xmx8g -Xms512m -XX:+UseG1GC -XX:MaxDirectMemorySize=2g"
+ulimit -n 65535
+# export PHARMEASY_COOKIE='X-Access-Token=…; XdI=…'
+
+HOME_USERS=45000 HOME_DURATION_SECS=600 \
+MEDICINE_USERS=75000 MEDICINE_DURATION_SECS=600 \
+DIAG_USERS=45000 DIAG_DURATION_SECS=600 \
+BLOG_USERS=0 BLOG_DURATION_SECS=600 \
+HCAT_USERS=75000 HCAT_DURATION_SECS=600 \
+CART_USERS=45000 CART_DURATION_SECS=600 \
+DCART_USERS=45000 DCART_DURATION_SECS=600 \
+PDP_USERS=75000 PDP_DURATION_SECS=600 \
+./scripts/run_individual.sh
+```
+
+**Uniform high concurrency — 600s, blog off** (only if policy and generator capacity allow; expect stress on DNS, FDs, and timeouts if the host is undersized):
+
+```bash
+cd /path/to/web-loadtest
+
+export GATLING_JAVA_OPTS="-Xmx8g -Xms512m -XX:+UseG1GC -XX:MaxDirectMemorySize=2g"
+ulimit -n 65535
+# export PHARMEASY_COOKIE='X-Access-Token=…; XdI=…'
+
+HOME_USERS=150000 HOME_DURATION_SECS=600 \
+MEDICINE_USERS=150000 MEDICINE_DURATION_SECS=600 \
+DIAG_USERS=150000 DIAG_DURATION_SECS=600 \
+BLOG_USERS=0 BLOG_DURATION_SECS=600 \
+HCAT_USERS=150000 HCAT_DURATION_SECS=600 \
+CART_USERS=45000 CART_DURATION_SECS=600 \
+DCART_USERS=45000 DCART_DURATION_SECS=600 \
+PDP_USERS=150000 PDP_DURATION_SECS=600 \
+./scripts/run_individual.sh
+```
+
+**Same peak-style mix with script-managed FD limit:**
+
+```bash
+cd /path/to/web-loadtest
+
+export GATLING_JAVA_OPTS="-Xmx8g -Xms512m -XX:+UseG1GC -XX:MaxDirectMemorySize=2g"
+GATLING_ULIMIT_NO=65535 \
+HOME_USERS=45000 HOME_DURATION_SECS=600 \
+MEDICINE_USERS=75000 MEDICINE_DURATION_SECS=600 \
+DIAG_USERS=45000 DIAG_DURATION_SECS=600 \
+BLOG_USERS=0 BLOG_DURATION_SECS=600 \
+HCAT_USERS=75000 HCAT_DURATION_SECS=600 \
+CART_USERS=45000 CART_DURATION_SECS=600 \
+DCART_USERS=45000 DCART_DURATION_SECS=600 \
+PDP_USERS=75000 PDP_DURATION_SECS=600 \
+./scripts/run_individual.sh
+```
 
 
 ### Export latest Gatling JSONs

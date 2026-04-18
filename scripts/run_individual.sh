@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# Optional for large runs: export GATLING_JAVA_OPTS="-Xmx8g -Xms512m -XX:+UseG1GC" && ulimit -n 65535
-# Log each GET: export GATLING_DEBUG=true  OR  GATLING_JAVA_OPTS="$GATLING_JAVA_OPTS -Dgatling.request.debug=true"
 
 # Usage: HOME_USERS=20 HOME_DURATION_SECS=60 MEDICINE_USERS=10 ... ./scripts/run_individual.sh
+#
+# Large runs (heap + FDs; same shell as this script):
+#   export GATLING_JAVA_OPTS="-Xmx8g -Xms512m -XX:+UseG1GC -XX:MaxDirectMemorySize=2g"
+#   GATLING_ULIMIT_NO=1048576 ./scripts/run_individual.sh
+# Or: ulimit -n 65535 manually before calling (macOS soft limit may cap lower).
+#
+# Log each GET (avoid at huge volume): GATLING_DEBUG=true  or  -Dgatling.request.debug=true in GATLING_JAVA_OPTS
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-ROOT_DIR=$(cd "${SCRIPT_DIR}/.." && pwd)
+# shellcheck source=/dev/null
+source "${SCRIPT_DIR}/_gatling_preamble.sh"
 
-cd "${ROOT_DIR}"
-
-sbt -warn -no-colors -Dsbt.log.noformat=true "Gatling/testOnly pharmeasy.IndividualUrlsSimulation"
+exec sbt "${SBT_GATLING_FLAGS[@]}" "Gatling/testOnly pharmeasy.IndividualUrlsSimulation"
