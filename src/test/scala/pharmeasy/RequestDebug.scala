@@ -13,7 +13,7 @@ object RequestDebug {
       if (CommonConfig.requestDebugEnabled) {
         val url = session("url").as[String]
         val urlName = session("urlName").as[String]
-        val cookie = CommonConfig.cookieHeader.map(c => s" | Cookie: $c").getOrElse("")
+        val cookie = CommonConfig.cookieHeader.map(c => s" | Cookie: ${c.take(20)}...").getOrElse("")
         log.info(s"REQUEST GET $url | mode=combined | page=$urlName$cookie")
       }
       session
@@ -22,7 +22,7 @@ object RequestDebug {
   def logOutgoingIndividual(pageKey: String, url: String): ChainBuilder =
     exec { session =>
       if (CommonConfig.requestDebugEnabled) {
-        val cookie = CommonConfig.cookieHeader.map(c => s" | Cookie: $c").getOrElse("")
+        val cookie = CommonConfig.cookieHeader.map(c => s" | Cookie: ${c.take(20)}...").getOrElse("")
         log.info(s"REQUEST GET $url | mode=individual | page=$pageKey$cookie")
       }
       session

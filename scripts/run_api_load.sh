@@ -3,6 +3,9 @@ set -euo pipefail
 #
 # Pharmeasy JSON API load (PharmeasyApiSimulation): default aggregate 200 RPS for 600s across 4 endpoints.
 #
+# Dry run (2 users, 5s, each hits all 4 APIs once in order):
+#   API_USERS=2 API_DURATION_SECS=5 ./scripts/run_api_load.sh
+#
 # Only getCartCount sends Cookie when you set one of: X_ACCESS_TOKEN, PHARMEASY_COOKIE, or CART_COOKIE.
 #
 #   export X_ACCESS_TOKEN='…'   # becomes Cookie: X-Access-Token=…

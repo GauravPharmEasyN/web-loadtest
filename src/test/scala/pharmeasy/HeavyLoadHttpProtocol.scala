@@ -18,8 +18,7 @@ object HeavyLoadHttpProtocol {
     new InetSocketAddress("1.1.1.1", 53)
   )
 
-  private def asyncDnsEnabled: Boolean =
-    !Option(System.getenv("GATLING_ASYNC_DNS")).map(_.trim.toLowerCase).exists(s => s == "0" || s == "false" || s == "no")
+  private def asyncDnsEnabled: Boolean = !CommonConfig.envDisabled("GATLING_ASYNC_DNS")
 
   def tune(builder: HttpProtocolBuilder): HttpProtocolBuilder = {
     val shared = builder.shareConnections
