@@ -6,15 +6,7 @@ import scala.concurrent.duration._
 
 class CombinedUrlsSimulation extends Simulation {
 
-  private val httpProtocol = {
-    val base = HeavyLoadHttpProtocol
-      .tune(http)
-      .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36")
-      .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8")
-      .acceptEncodingHeader("gzip, deflate, br")
-      .acceptLanguageHeader("en-US,en;q=0.9")
-    CommonConfig.cookieHeader.fold(base)(c => base.header("Cookie", c))
-  }
+  private val httpProtocol = CommonConfig.browserHttpProtocol
 
   private val urlsSeq = CommonConfig.urls.toSeq
   private val feeder = Iterator.continually(Map("_urlPair" -> urlsSeq(scala.util.Random.nextInt(urlsSeq.length))))

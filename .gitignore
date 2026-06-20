@@ -24,6 +24,11 @@ playwright/lighthouse-reports/
 
 # Diagrams tooling
 docs/diagrams/node_modules/
+docs/diagrams/package-lock.json
+
+# Generated diagram outputs
+docs/diagrams/*.svg
+docs/images/
 
 # IDE/editor configs (optional)
 .idea/
